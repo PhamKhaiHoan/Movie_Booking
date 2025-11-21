@@ -1,15 +1,9 @@
-import { useState } from 'react'
-import { Button } from './components/ui/button'
+import { useRoutes } from "react-router-dom";
+import { routes } from "./router/router";
 
 function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <p className='text-red-500'>demo</p>
-      <Button>abc</Button>
-    </>
-  )
+  const Routers = useRoutes(routes);
+  return Routers;
 }
 
-export default App
+export default App;

@@ -16,7 +16,6 @@ interface FlatShowtime {
   giaVe: number;
   thoiLuong: number;
 }
-
 export const ShowtimeList = () => {
   const navigate = useNavigate();
   const [showtimes, setShowtimes] = useState<FlatShowtime[]>([]);

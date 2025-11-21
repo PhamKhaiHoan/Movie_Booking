@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth"
 export const BookingPage = () => {
   const { id: maLichChieu } = useParams<{ id: string }>()
 
-  const { user, accessToken } = useAuth()
+  const { accessToken } = useAuth()
 
   const { data, isLoading } = useQueryTicketRoom(maLichChieu)
 

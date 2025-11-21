@@ -52,7 +52,7 @@ export const MovieList = () => {
     toast.promise(deletePromise, {
       loading: "Đang xóa phim...",
       success: () => {
-        fetchMovies(keyword); // Load lại danh sách
+        fetchMovies(); 
         return "Xóa phim thành công!";
       },
       error: "Xóa thất bại! (Có thể do phim đã có lịch chiếu)",

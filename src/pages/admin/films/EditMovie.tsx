@@ -85,6 +85,10 @@ export const EditMovie = () => {
     data.append("sapChieu", formData.sapChieu.toString());
     data.append("hot", formData.hot.toString());
 
+    if (file) {
+      data.append("File", file);
+    }
+
     const promise = movieService.updateMovie(data);
 
     toast.promise(promise, {

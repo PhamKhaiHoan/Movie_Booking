@@ -1,5 +1,8 @@
 export const PATH = {
   HOME: "/",
-  MOVIE_DETAILS: "/movie/:id",
+  ADMIN: "/admin",
+  ADMIN_FILMS: "/admin/films",
+  ADMIN_ADD_FILM: "/admin/films/add",
+
   NOT_FOUND: "*"
 };

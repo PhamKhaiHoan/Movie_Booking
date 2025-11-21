@@ -1,5 +1,5 @@
 import { GROUP_ID } from "@/constants/constants";
-import { api } from "@/lib/api";
+import { api } from "@/lib/admin.api";
 
 export const cinemaService = {
   // Lấy danh sách hệ thống rạp (BHD, CGV...)

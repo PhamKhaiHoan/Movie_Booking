@@ -1,4 +1,4 @@
-import { api } from "@/lib/api";
+import { api } from "@/lib/admin.api";
 import { GROUP_ID } from "@/constants/constants";
 
 export const movieService = {

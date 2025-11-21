@@ -4,6 +4,7 @@ import { Calendar, Edit, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { movieService } from "../services/movie.service";
+import { toast } from "sonner";
 
 interface Movie {
   maPhim: number;
@@ -14,8 +15,7 @@ interface Movie {
 
 export const MovieList = () => {
   const navigate = useNavigate();
-  
-  
+
   // 1. State lưu TOÀN BỘ danh sách phim từ API
   const [movieList, setMovieList] = useState<Movie[]>([]);
   const [keyword, setKeyword] = useState("");
@@ -38,7 +38,7 @@ export const MovieList = () => {
 
   // 3. Logic tìm kiếm CLIENT-SIDE (Cực nhanh và chính xác)
   // Lọc từ danh sách gốc dựa trên từ khóa
-  const filteredMovies = movieList.filter((phim) => 
+  const filteredMovies = movieList.filter((phim) =>
     phim.tenPhim.toLowerCase().includes(keyword.toLowerCase())
   );
 
@@ -47,16 +47,16 @@ export const MovieList = () => {
   };
 
   const handleDelete = async (maPhim: number) => {
-    if (window.confirm("Bạn có chắc muốn xóa phim này không?")) {
-      try {
-        await movieService.deleteMovie(maPhim);
-        alert("Xóa thành công!");
-        fetchMovies(); // Load lại danh sách gốc
-      } catch (error) {
-        console.error("Lỗi xóa phim:", error);
-        alert("Xóa thất bại! (Có thể do thiếu quyền hoặc phim đã có lịch chiếu)");
-      }
-    }
+    const deletePromise = movieService.deleteMovie(maPhim);
+
+    toast.promise(deletePromise, {
+      loading: "Đang xóa phim...",
+      success: () => {
+        fetchMovies(keyword); // Load lại danh sách
+        return "Xóa phim thành công!";
+      },
+      error: "Xóa thất bại! (Có thể do phim đã có lịch chiếu)",
+    });
   };
 
   return (
@@ -95,15 +95,22 @@ export const MovieList = () => {
               <th className="px-6 py-4 font-medium text-gray-900">Hình ảnh</th>
               <th className="px-6 py-4 font-medium text-gray-900">Tên phim</th>
               <th className="px-6 py-4 font-medium text-gray-900">Mô tả</th>
-              <th className="px-6 py-4 font-medium text-gray-900 text-right">Hành động</th>
+              <th className="px-6 py-4 font-medium text-gray-900 text-right">
+                Hành động
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 border-t border-gray-100">
             {/* 👇 Render filteredMovies thay vì dataPhim */}
             {filteredMovies.length > 0 ? (
               filteredMovies.map((phim) => (
-                <tr key={phim.maPhim} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-gray-900">{phim.maPhim}</td>
+                <tr
+                  key={phim.maPhim}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <td className="px-6 py-4 font-medium text-gray-900">
+                    {phim.maPhim}
+                  </td>
                   <td className="px-6 py-4">
                     <div className="h-24 w-16 overflow-hidden rounded-md border border-gray-200 shadow-sm">
                       <img
@@ -111,7 +118,8 @@ export const MovieList = () => {
                         alt={phim.tenPhim}
                         className="h-full w-full object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = "https://via.placeholder.com/150?text=No+Image";
+                          (e.target as HTMLImageElement).src =
+                            "https://via.placeholder.com/150?text=No+Image";
                         }}
                       />
                     </div>
@@ -128,7 +136,9 @@ export const MovieList = () => {
                         variant="outline"
                         size="icon"
                         className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
-                        onClick={() => navigate(`/admin/films/edit/${phim.maPhim}`)}
+                        onClick={() =>
+                          navigate(`/admin/films/edit/${phim.maPhim}`)
+                        }
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -146,7 +156,9 @@ export const MovieList = () => {
                         variant="outline"
                         size="icon"
                         className="text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200"
-                        onClick={() => navigate(`/admin/showtimes/${phim.maPhim}`)}
+                        onClick={() =>
+                          navigate(`/admin/showtimes/${phim.maPhim}`)
+                        }
                       >
                         <Calendar className="h-4 w-4" />
                       </Button>
@@ -156,7 +168,10 @@ export const MovieList = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-gray-500 italic">
+                <td
+                  colSpan={5}
+                  className="px-6 py-8 text-center text-gray-500 italic"
+                >
                   Không tìm thấy phim nào phù hợp với từ khóa "{keyword}".
                 </td>
               </tr>

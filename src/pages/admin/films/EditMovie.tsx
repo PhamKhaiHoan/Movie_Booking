@@ -5,6 +5,7 @@ import { movieService } from "@/pages/admin/services/movie.service";
 import { PATH } from "@/constants/path";
 import dayjs from "dayjs";
 import { GROUP_ID } from "@/constants/constants";
+import { toast } from "sonner";
 
 export const EditMovie = () => {
   const { id } = useParams();
@@ -84,18 +85,16 @@ export const EditMovie = () => {
     data.append("sapChieu", formData.sapChieu.toString());
     data.append("hot", formData.hot.toString());
 
-    if (file) {
-      data.append("File", file);
-    }
+    const promise = movieService.updateMovie(data);
 
-    try {
-      await movieService.updateMovie(data);
-      alert("Cập nhật phim thành công!");
-      navigate(PATH.ADMIN_FILMS);
-    } catch (error) {
-      console.error("Lỗi update:", error);
-      alert("Cập nhật thất bại!");
-    }
+    toast.promise(promise, {
+      loading: "Đang cập nhật...",
+      success: () => {
+        navigate(PATH.ADMIN_FILMS); // Chuyển trang sau khi xong
+        return "Cập nhật phim thành công!";
+      },
+      error: "Cập nhật thất bại!",
+    });
   };
 
   return (

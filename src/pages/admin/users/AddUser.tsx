@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { userService } from "@/pages/admin/services/user.service";
 import { PATH } from "@/constants/path";
+import { toast } from "sonner";
 
 export const AddUser = () => {
   const { id } = useParams();
@@ -58,26 +59,23 @@ export const AddUser = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      if (isEditMode) {
-        await userService.updateUser(formData);
-        alert("Cập nhật thành công!");
-      } else {
-        await userService.addUser(formData);
-        alert("Thêm mới thành công!");
-      }
-      navigate(PATH.ADMIN_USERS);
-    } catch (err: any) {
-      console.error("Chi tiết lỗi:", err);
 
-      // 👇 Logic hiển thị lỗi thông minh hơn
-      const serverMessage = err.response?.data?.content || err.response?.data;
-      alert(
-        `Lỗi: ${
-          serverMessage || "Có lỗi xảy ra, vui lòng kiểm tra Console (F12)"
-        }`
-      );
-    }
+    // Định nghĩa hành động dựa trên mode
+    const action = isEditMode
+      ? userService.updateUser(formData)
+      : userService.addUser(formData);
+
+    toast.promise(action, {
+      loading: isEditMode ? "Đang cập nhật..." : "Đang thêm mới...",
+      success: () => {
+        navigate(PATH.ADMIN_USERS);
+        return isEditMode ? "Cập nhật thành công!" : "Thêm mới thành công!";
+      },
+      error: (err) => {
+        const msg = err.response?.data?.content || "Có lỗi xảy ra!";
+        return `Lỗi: ${msg}`;
+      },
+    });
   };
 
   return (

@@ -4,13 +4,14 @@ import { Edit, Plus, Search, Trash2 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { userService } from "../services/user.service";
+import { toast } from "sonner";
 
 // 1. Sửa Interface khớp 100% với JSON API trả về
 interface User {
-  taiKhoan: string; // 👈 Quan trọng: chữ K viết hoa
+  taiKhoan: string;
   hoTen: string;
   email: string;
-  soDt: string; // 👈 Quan trọng: chữ t viết thường (theo hình bạn gửi)
+  soDt: string;
   maLoaiNguoiDung: string;
 }
 
@@ -45,16 +46,16 @@ export const UserList = () => {
   };
 
   const handleDelete = async (taiKhoan: string) => {
-    if (window.confirm(`Xóa user ${taiKhoan}?`)) {
-      try {
-        await userService.deleteUser(taiKhoan);
-        alert("Xóa thành công!");
+    const promise = userService.deleteUser(taiKhoan);
+
+    toast.promise(promise, {
+      loading: "Đang xóa người dùng...",
+      success: () => {
         fetchUsers(keyword);
-      } catch (error) {
-        console.error("Xóa thất bại", error);
-        alert("Xóa thất bại (Có thể do thiếu quyền hoặc user đã đặt vé)");
-      }
-    }
+        return "Xóa thành công!";
+      },
+      error: "Xóa thất bại! (User đã đặt vé hoặc không đủ quyền)",
+    });
   };
 
   return (

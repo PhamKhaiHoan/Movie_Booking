@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { movieService } from "@/pages/admin/services/movie.service";
 import { cinemaService } from "@/pages/admin/services/cinema.service";
 import dayjs from "dayjs";
+import { toast } from "sonner";
 
 export const Showtime = () => {
   const { id } = useParams();
@@ -62,13 +63,14 @@ export const Showtime = () => {
       giaVe: formData.giaVe,
     };
 
-    try {
-      await cinemaService.createShowtime(payload);
-      alert("Tạo lịch chiếu thành công!");
-    } catch (error: any) {
-      console.error("Lỗi tạo lịch:", error);
-      alert(error.response?.data?.content || "Tạo lịch thất bại!");
-    }
+    const promise = cinemaService.createShowtime(payload);
+
+    toast.promise(promise, {
+      loading: "Đang tạo lịch chiếu...",
+      success: "Tạo lịch chiếu thành công!",
+      error: (err) =>
+        `Thất bại: ${err.response?.data?.content || "Lỗi không xác định"}`,
+    });
   };
 
   return (

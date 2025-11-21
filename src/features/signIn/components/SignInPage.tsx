@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAppDispatch } from '@/store/config'
 import { signInActions } from '../signIn.slice'
 import { PATH } from '@/constants'
+import { toast } from 'sonner'
 
 
 export const SignInPage = () => {
@@ -26,10 +27,10 @@ export const SignInPage = () => {
         })
       )
 
-      alert('Đăng nhập thành công!')
+      toast.success('Đăng nhập thành công!')
       navigate(PATH.HOME)
     } catch {
-      alert('Sai tài khoản hoặc mật khẩu!')
+      toast.error('Sai tài khoản hoặc mật khẩu!')
     }
   }
 

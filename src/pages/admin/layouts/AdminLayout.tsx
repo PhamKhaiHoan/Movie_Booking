@@ -1,8 +1,18 @@
 import { PATH } from "@/constants/path";
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { Calendar, CircleUserRound, Film, House, LogOut, User } from "lucide-react";
+import { useAppDispatch } from "@/store/config";
+import { signInActions } from "@/features/signIn/signIn.slice";
 
 export const AdminLayout = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  const handleLogout = () => {
+    dispatch(signInActions.signOut());
+    navigate(PATH.HOME);
+  };
+
   return (
     <div className="flex h-screen bg-radial-[at_25%_25%] from-gray-900 via-gray-800 to-gray-700 overflow-hidden">
       {/* --- SIDEBAR (Bên trái) --- */}
@@ -91,7 +101,7 @@ export const AdminLayout = () => {
 
         {/* Footer Sidebar */}
         <div className="p-4 border-t border-slate-700">
-          <button className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-red-400 hover:bg-slate-800 transition-colors">
+          <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-red-400 hover:bg-slate-800 transition-colors">
             <LogOut size={30} />
             <span>Đăng xuất</span>
           </button>

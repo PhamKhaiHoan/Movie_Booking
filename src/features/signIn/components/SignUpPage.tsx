@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { quanLyNguoiDungServices } from '@/services/quanLyNguoiDungServices'
 import { useNavigate } from 'react-router-dom'
 import { PATH } from '@/constants'
+import { toast } from 'sonner'
 
 
 export const SignUpPage = () => {
@@ -25,10 +26,10 @@ export const SignUpPage = () => {
 
     try {
       await quanLyNguoiDungServices.signUp(form)
-      alert('Đăng ký thành công!')
-      navigate(PATH.SIGN_IN)
+      toast.success('Đăng ký thành công, hãy đăng nhập lại!')
+      navigate(PATH.HOME)
     } catch {
-      alert('Lỗi đăng ký, vui lòng thử lại!')
+      toast.error('Lỗi đăng ký, vui lòng thử lại!')
     }
   }
 

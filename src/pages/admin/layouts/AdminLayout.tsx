@@ -4,9 +4,9 @@ import { Calendar, CircleUserRound, Film, House, LogOut, User } from "lucide-rea
 
 export const AdminLayout = () => {
   return (
-    <div className="flex h-screen bg-white-100 overflow-hidden">
+    <div className="flex h-screen bg-radial-[at_25%_25%] from-gray-900 via-gray-800 to-gray-700 overflow-hidden">
       {/* --- SIDEBAR (Bên trái) --- */}
-      <aside className="w-64 bg-gray-700 text-white flex flex-col shadow-xl rounded-r-lg">
+      <aside className="w-64 bg-radial-[at_25%_25%] from-gray-900 via-gray-800 to-gray-700 text-white flex flex-col shadow-xl rounded-br-lg">
         {/* Logo Area */}
         <div className="h-16 flex items-center justify-center border-b border-slate-700">
           <h1 className="text-2xl font-bold text-orange-500 tracking-widest">
@@ -101,8 +101,8 @@ export const AdminLayout = () => {
       {/* --- MAIN CONTENT (Bên phải) --- */}
       <div className="flex-1 flex flex-col">
         {/* Header nhỏ */}
-        <header className="h-16 bg-white shadow-sm flex items-center justify-between px-6">
-          <h2 className="text-lg font-semibold text-gray-700">
+        <header className="h-16 bg-linear-to-t from-sky-500 to-indigo-500 shadow-sm flex items-center justify-between rounded-b-lg px-6">
+          <h2 className="text-lg font-semibold text-gray-100">
             Admin Dashboard
           </h2>
           <div className="flex items-center gap-4">

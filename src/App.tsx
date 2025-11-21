@@ -4,9 +4,10 @@ import { Toaster } from "sonner";
 
 function App() {
   const Routers = useRoutes(routes);
+
   return (
     <>
-      {/* 2. Thêm Toaster vào đây. richColors giúp thông báo có màu xanh/đỏ đẹp mắt */}
+      {/* Toaster hiển thị thông báo đẹp mắt cho cả Admin và Client */}
       <Toaster position="top-right" richColors />
       {Routers}
     </>

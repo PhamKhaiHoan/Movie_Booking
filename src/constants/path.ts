@@ -1,5 +1,13 @@
 export const PATH = {
+  // --- CLIENT (Khách hàng) ---
   HOME: "/",
+  MOVIE_DETAIL: 'movie/:id',
+  BOOKING: 'booking/:id',
+  SIGN_IN: 'sign-in',
+  SIGN_UP: 'sign-up',
+  PROFILE: 'profile',
+
+  // --- ADMIN (Quản trị) ---
   ADMIN: "/admin",
 
   ADMIN_FILMS: "/admin/films",
@@ -14,4 +22,4 @@ export const PATH = {
   ADMIN_SHOWTIMES_LIST: "/admin/showtimes",
 
   NOT_FOUND: "*",
-};
+} as const;

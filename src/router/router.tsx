@@ -5,6 +5,7 @@ import { AdminLayout } from "@/pages/admin/layouts/AdminLayout";
 import { type RouteObject } from "react-router-dom";
 import { EditMovie } from "@/pages/admin/films/EditMovie";
 import { Showtime } from "@/pages/admin/films/ShowTime";
+import { UserList } from "@/pages/admin/users/UserList";
 
 export const routes: RouteObject[] = [
   // --- Route cho Admin ---
@@ -31,6 +32,10 @@ export const routes: RouteObject[] = [
       {
         path: PATH.ADMIN_SHOWTIME, // /admin/showtimes/:id
         element: <Showtime />,
+      },
+      {
+        path: PATH.ADMIN_USERS, // /admin/users
+        element: <UserList />,
       },
     ],
   },

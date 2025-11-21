@@ -54,9 +54,9 @@ export const AdminLayout = () => {
             </span>
           </NavLink>
 
-          {/* Link Quản lý User (Sau này làm) */}
+          {/* Link Quản lý User */}
           <NavLink
-            to="/admin/users" // Tạm thời hardcode, sau này thêm vào PATH
+            to={PATH.ADMIN_USERS}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive

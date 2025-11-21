@@ -7,6 +7,7 @@ import { EditMovie } from "@/pages/admin/films/EditMovie";
 import { Showtime } from "@/pages/admin/films/ShowTime";
 import { UserList } from "@/pages/admin/users/UserList";
 import { AddUser } from "@/pages/admin/users/AddUser";
+import { ShowtimeList } from "@/pages/admin/films/ShowtimeList";
 
 export const routes: RouteObject[] = [
   // --- Route cho Admin ---
@@ -15,27 +16,24 @@ export const routes: RouteObject[] = [
     element: <AdminLayout />,
     children: [
       {
-        index: true, // Vào /admin là thấy list phim luôn
+        index: true, 
         element: <MovieList />,
       },
       {
-        path: PATH.ADMIN_FILMS, // "films" -> /admin/films
+        path: PATH.ADMIN_FILMS, 
         element: <MovieList />,
       },
       {
-        path: PATH.ADMIN_ADD_FILM, // "films/add" -> /admin/films/add
+        path: PATH.ADMIN_ADD_FILM, 
         element: <AddMovies />,
       },
       {
-        path: PATH.ADMIN_EDIT_FILM, // /admin/films/edit/:id
+        path: PATH.ADMIN_EDIT_FILM, 
         element: <EditMovie />,
       },
+
       {
-        path: PATH.ADMIN_SHOWTIME, // /admin/showtimes/:id
-        element: <Showtime />,
-      },
-      {
-        path: PATH.ADMIN_USERS, // /admin/users
+        path: PATH.ADMIN_USERS, 
         element: <UserList />,
       },
       {
@@ -46,6 +44,15 @@ export const routes: RouteObject[] = [
         path: PATH.ADMIN_EDIT_USER,
         element: <AddUser />,
       },
+
+      {
+        path: PATH.ADMIN_SHOWTIME, 
+        element: <Showtime />,
+      },
+      {
+        path: PATH.ADMIN_SHOWTIMES_LIST, 
+        element: <ShowtimeList />,
+    },
     ],
   },
 

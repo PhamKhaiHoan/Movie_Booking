@@ -1,3 +1,4 @@
+import { GROUP_ID } from "@/constants/constants";
 import { api } from "@/lib/api";
 
 export const cinemaService = {
@@ -14,5 +15,9 @@ export const cinemaService = {
   // Tạo lịch chiếu
   createShowtime: (data: any) => {
     return api.post("/QuanLyDatVe/TaoLichChieu", data);
+  },
+
+  getShowtimesBySystem: () => {
+    return api.get(`/QuanLyRap/LayThongTinLichChieuHeThongRap?maNhom=${GROUP_ID}`);
   }
 };

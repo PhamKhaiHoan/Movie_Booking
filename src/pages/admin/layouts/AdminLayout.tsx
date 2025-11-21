@@ -71,7 +71,7 @@ export const AdminLayout = () => {
             </span>
           </NavLink>
 
-          {/* Link Lịch Chiếu (Sau này làm) */}
+          {/* Link Lịch Chiếu*/}
           <NavLink
             to="/admin/showtimes"
             className={({ isActive }) =>

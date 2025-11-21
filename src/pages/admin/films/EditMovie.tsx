@@ -90,10 +90,19 @@ export const EditMovie = () => {
     toast.promise(promise, {
       loading: "Đang cập nhật...",
       success: () => {
-        navigate(PATH.ADMIN_FILMS); // Chuyển trang sau khi xong
+        navigate(PATH.ADMIN_FILMS);
         return "Cập nhật phim thành công!";
       },
-      error: "Cập nhật thất bại!",
+      // 👇 Sửa đoạn này để hiển thị lỗi rõ hơn
+      error: (err) => {
+        // Nếu lỗi 500 thường là do trùng tên hoặc lỗi server
+        if (err.response?.status === 500) {
+          return "Lỗi Server: Có thể tên phim đã tồn tại hoặc dữ liệu ảnh quá lớn.";
+        }
+        return `Cập nhật thất bại: ${
+          err.response?.data?.content || "Lỗi không xác định"
+        }`;
+      },
     });
   };
 

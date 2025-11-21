@@ -6,7 +6,6 @@ export const api = axios.create({
   baseURL: "https://movienew.cybersoft.edu.vn/api",
   headers: {
     "TokenCybersoft": CYBERSOFT_TOKEN, 
-    "Content-Type": "application/json",
   },
 });
 

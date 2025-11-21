@@ -5,6 +5,7 @@ import { movieService } from "@/pages/admin/services/movie.service";
 import { PATH } from "@/constants/path";
 import { toast } from "sonner"; // Import Toast đẹp
 import dayjs from "dayjs"; // Import thư viện xử lý ngày
+import { GROUP_ID } from "@/constants/constants";
 
 export const AddMovies = () => {
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ export const AddMovies = () => {
     data.append("tenPhim", formData.tenPhim);
     data.append("trailer", formData.trailer);
     data.append("moTa", formData.moTa);
-    data.append("maNhom", "GP01"); // Mã nhóm cứng
+    data.append("maNhom", GROUP_ID); 
     
     // Format ngày: dd/mm/yyyy (API bắt buộc)
     data.append("ngayKhoiChieu", dayjs(formData.ngayKhoiChieu).format("DD/MM/YYYY"));

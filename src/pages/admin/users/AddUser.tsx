@@ -1,38 +1,42 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { userService } from "../services/user.service";
-import { PATH } from "@/constants/constants";
+import { userService } from "@/pages/admin/services/user.service";
+import { PATH } from "@/constants/path";
 
 export const AddUser = () => {
-  const { id } = useParams(); // Lấy tài khoản từ URL (nếu có)
+  const { id } = useParams();
   const navigate = useNavigate();
-  const isEditMode = Boolean(id); // Có id => Đang sửa
+  const isEditMode = Boolean(id);
 
-  // State form
   const [formData, setFormData] = useState({
     taiKhoan: "",
     matKhau: "",
     hoTen: "",
     email: "",
     soDt: "",
-    maLoaiNguoiDung: "KhachHang", // Mặc định là Khách
+    maLoaiNguoiDung: "KhachHang",
   });
 
-  // Nếu là Edit Mode -> Load dữ liệu giả
+  // --- 1. FIX LOGIC LẤY DỮ LIỆU ---
   useEffect(() => {
     if (isEditMode && id) {
       const fetchUserDetail = async () => {
         try {
-          // API này trả về 1 danh sách, ta lấy phần tử đầu tiên khớp tài khoản
-          const res = await userService.getUserDetail(id);
+          const res = await userService.searchUser(id); // Dùng hàm search
+
           if (res.data.content && res.data.content.length > 0) {
-            const user = res.data.content[0]; // Lấy người đầu tiên tìm thấy
+            // Tìm chính xác user có tài khoản trùng với id trên URL
+            const user =
+              res.data.content.find((u: any) => u.taiKhoan === id) ||
+              res.data.content[0];
+
             setFormData({
               taiKhoan: user.taiKhoan,
-              matKhau: user.matKhau, // API thường không trả mật khẩu, có thể để trống
+              matKhau: user.matKhau, // Lấy mật khẩu cũ từ API
               email: user.email,
-              soDt: user.soDt,
+              // Fix lỗi key: API trả về soDT (hoa) hoặc soDt (thường) tùy server
+              soDt: user.soDT || user.soDt || "",
               hoTen: user.hoTen,
               maLoaiNguoiDung: user.maLoaiNguoiDung,
             });
@@ -45,7 +49,6 @@ export const AddUser = () => {
     }
   }, [isEditMode, id]);
 
-  // Hàm xử lý nhập liệu
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -64,15 +67,23 @@ export const AddUser = () => {
         alert("Thêm mới thành công!");
       }
       navigate(PATH.ADMIN_USERS);
-    } catch (err) {
-      alert("Có lỗi xảy ra!");
+    } catch (err: any) {
+      console.error("Chi tiết lỗi:", err);
+
+      // 👇 Logic hiển thị lỗi thông minh hơn
+      const serverMessage = err.response?.data?.content || err.response?.data;
+      alert(
+        `Lỗi: ${
+          serverMessage || "Có lỗi xảy ra, vui lòng kiểm tra Console (F12)"
+        }`
+      );
     }
   };
 
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold text-gray-100 mb-6">
-        {isEditMode ? "Cập nhật người dùng" : "Thêm người dùng mới"}
+        {isEditMode ? `Cập nhật người dùng: ${id}` : "Thêm người dùng mới"}
       </h1>
 
       <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 max-w-2xl mx-auto">
@@ -88,7 +99,7 @@ export const AddUser = () => {
                 name="taiKhoan"
                 value={formData.taiKhoan}
                 onChange={handleChange}
-                disabled={isEditMode} // 🔒 Khóa lại nếu đang sửa
+                disabled={isEditMode}
                 placeholder="Nhập tài khoản..."
                 className={`w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500 ${
                   isEditMode ? "bg-gray-100 cursor-not-allowed" : ""
@@ -116,7 +127,12 @@ export const AddUser = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Mật khẩu
+                Mật khẩu{" "}
+                {isEditMode && (
+                  <span className="text-xs text-red-500 font-normal">
+                    (Nhập nếu muốn đổi)
+                  </span>
+                )}
               </label>
               <input
                 type="password"
@@ -125,7 +141,9 @@ export const AddUser = () => {
                 onChange={handleChange}
                 placeholder="Nhập mật khẩu..."
                 className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
-                required
+                // --- 2. FIX LỖI REQUIRED ---
+                // Chỉ bắt buộc nhập khi Thêm mới. Khi sửa thì để trống nghĩa là không đổi pass.
+                required={!isEditMode}
               />
             </div>
             <div>

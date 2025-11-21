@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { movieService } from "@/pages/admin/services/movie.service";
 import { PATH } from "@/constants/path";
 import dayjs from "dayjs";
+import { GROUP_ID } from "@/constants/constants";
 
 export const EditMovie = () => {
   const { id } = useParams();
@@ -72,7 +73,7 @@ export const EditMovie = () => {
     data.append("tenPhim", formData.tenPhim);
     data.append("trailer", formData.trailer);
     data.append("moTa", formData.moTa);
-    data.append("maNhom", "GP01");
+    data.append("maNhom", GROUP_ID);
     // Format ngày gửi lên API phải là dd/mm/yyyy
     data.append(
       "ngayKhoiChieu",

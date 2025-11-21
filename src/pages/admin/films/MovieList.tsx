@@ -2,35 +2,36 @@
 import { Button } from "@/components/ui/button";
 import { PATH } from "@/constants/path";
 import { Calendar, Edit, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { movieService } from "../services/movie.service";
+
+interface Movie {
+  maPhim: number;
+  tenPhim: string;
+  hinhAnh: string;
+  moTa: string;
+}
 
 export const MovieList = () => {
   const navigate = useNavigate();
+  const [dataPhim, setDataPhim] = useState<Movie[]>([]);
 
-  // Mock Data (Dữ liệu giả để test UI)
-  const [dataPhim, setDataPhim] = useState([
-    {
-      maPhim: 1314,
-      tenPhim: "Mai",
-      hinhAnh: "https://movienew.cybersoft.edu.vn/hinhanh/mai_gp01.jpg",
-      moTa: "Phim của Trấn Thành, doanh thu 500 tỷ...",
-    },
-    {
-      maPhim: 1329,
-      tenPhim: "Đào, Phở và Piano",
-      hinhAnh:
-        "https://movienew.cybersoft.edu.vn/hinhanh/dao-pho-va-piano_gp01.png",
-      moTa: "Phim lịch sử cháy vé tại các rạp quốc gia...",
-    },
-    {
-      maPhim: 1344,
-      tenPhim: "Kung Fu Panda 4",
-      hinhAnh:
-        "https://movienew.cybersoft.edu.vn/hinhanh/kung-fu-panda-4_gp01.jpg",
-      moTa: "Gấu béo trở lại lợi hại hơn xưa...",
-    },
-  ]);
+  // --- HÀM GỌI API ---
+  const fetchMovies = async () => {
+    try {
+      const res = await movieService.getMovieList();
+      // API CyberSoft thường trả dữ liệu trong `res.data.content`
+      setDataPhim(res.data.content);
+    } catch (error) {
+      console.error("Lỗi lấy danh sách phim:", error);
+    }
+  };
+
+  // Gọi hàm này 1 lần khi trang vừa load
+  useEffect(() => {
+    fetchMovies();
+  }, []);
 
   const handleDelete = (maPhim: number) => {
     // Lọc ra những phim KHÔNG trùng mã (nghĩa là giữ lại phim khác, bỏ phim này)
@@ -88,7 +89,7 @@ export const MovieList = () => {
                   {phim.maPhim}
                 </td>
                 <td className="px-6 py-4">
-                  <div className="h-80 w-50 overflow-hidden rounded-md border border-gray-200">
+                  <div className="h-30 w-22 overflow-hidden rounded-md border border-gray-200">
                     <img
                       src={phim.hinhAnh}
                       alt={phim.tenPhim}
@@ -96,7 +97,7 @@ export const MovieList = () => {
                     />
                   </div>
                 </td>
-                <td className="px-6 py-4 text-3xl font-semibold text-gray-700">
+                <td className="px-6 py-4 text-xl font-semibold text-gray-700">
                   {phim.tenPhim}
                 </td>
                 <td className="px-6 py-4 max-w-xs truncate" title={phim.moTa}>
@@ -131,7 +132,9 @@ export const MovieList = () => {
                       variant="outline"
                       size="icon"
                       className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                      onClick={() => navigate(`/admin/showtimes/${phim.maPhim}`)}
+                      onClick={() =>
+                        navigate(`/admin/showtimes/${phim.maPhim}`)
+                      }
                     >
                       <Calendar className="h-4 w-4" />
                     </Button>

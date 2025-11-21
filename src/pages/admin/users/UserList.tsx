@@ -3,6 +3,8 @@ import { PATH } from "@/constants/path";
 import { Edit, Plus, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { userService } from "../services/user.service";
 
 export const UserList = () => {
   const navigate = useNavigate();
@@ -10,37 +12,31 @@ export const UserList = () => {
   // State lưu từ khóa tìm kiếm
   const [keyword, setKeyword] = useState("");
 
-  // Mock Data User
-  const [users, setUsers] = useState([
-    {
-      taikhoan: "admin_01",
-      hoTen: "Nguyễn Văn Admin",
-      email: "admin@gmail.com",
-      soDt: "0901234567",
-      maLoaiNguoiDung: "QuanTri",
-    },
-    {
-      taikhoan: "khach_02",
-      hoTen: "Trần Thị Khách",
-      email: "khach@gmail.com",
-      soDt: "0909888777",
-      maLoaiNguoiDung: "KhachHang",
-    },
-    {
-      taikhoan: "super_man",
-      hoTen: "Clark Kent",
-      email: "superman@krypton.com",
-      soDt: "0911222333",
-      maLoaiNguoiDung: "KhachHang",
-    },
-    {
-      taikhoan: "iron_man",
-      hoTen: "Tony Stark",
-      email: "tony@stark.com",
-      soDt: "0988888888",
-      maLoaiNguoiDung: "KhachHang",
-    },
-  ]);
+  const [users, setUsers] = useState<any[]>([]);
+
+  // --- HÀM GỌI API ---
+  const fetchUsers = async (tuKhoa: string = "") => {
+    try {
+      const res = tuKhoa
+        ? await userService.searchUser(tuKhoa) // Nếu có từ khóa thì gọi API tìm kiếm
+        : await userService.getUserList(); // Không thì gọi API lấy hết
+
+      setDataPhim(res.data.content);
+    } catch (error) {
+      console.error("Lỗi lấy user:", error);
+    }
+  };
+
+  // Gọi lần đầu
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setKeyword(value);
+    // Lưu ý: Gọi API liên tục khi gõ sẽ hơi lag, tốt nhất là dùng Button "Tìm" để kích hoạt
+  };
 
   // Logic lọc danh sách: Tìm theo Tài Khoản hoặc Họ Tên
   const filteredUsers = users.filter(
@@ -76,9 +72,12 @@ export const UserList = () => {
           placeholder="Nhập tài khoản hoặc họ tên người dùng..."
           className="flex-1 px-4 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500 transition-all"
           value={keyword}
-          onChange={(e) => setKeyword(e.target.value)} 
+          onChange={handleSearch}
         />
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button
+          className="bg-blue-600 hover:bg-blue-700"
+          onClick={() => fetchUsers(keyword)}
+        >
           <Search className="h-4 w-4" /> Tìm
         </Button>
       </div>
@@ -100,7 +99,7 @@ export const UserList = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-            {/* 👇 Chú ý: Map qua filteredUsers chứ không phải users gốc */}
+            {/* Chú ý: Map qua filteredUsers chứ không phải users gốc */}
             {filteredUsers.length > 0 ? (
               filteredUsers.map((user, index) => (
                 <tr

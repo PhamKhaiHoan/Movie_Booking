@@ -1,4 +1,5 @@
 import { api } from "@/lib/api";
+import { GROUP_ID } from "@/constants/constants";
 
 export const movieService = {
   // 👇 Cập nhật dòng này: Nhận thêm tham số tenPhim
@@ -12,10 +13,9 @@ export const movieService = {
   //   },
 
   getMovieList: () => {
-    return api.get("/QuanLyPhim/LayDanhSachPhim?maNhom=GP01");
+    return api.get(`/QuanLyPhim/LayDanhSachPhim?maNhom=${GROUP_ID}`);
   },
 
-  // ... (Các hàm getMovieDetail, deleteMovie... giữ nguyên)
   getMovieDetail: (maPhim: string) => {
     return api.get(`/QuanLyPhim/LayThongTinPhim?MaPhim=${maPhim}`);
   },

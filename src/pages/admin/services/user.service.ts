@@ -1,14 +1,15 @@
+import { GROUP_ID } from "@/constants/constants";
 import { api } from "@/lib/api";
 
 export const userService = {
   // 1. Lấy danh sách
   getUserList: () => {
-    return api.get("/QuanLyNguoiDung/LayDanhSachNguoiDung?MaNhom=GP01");
+    return api.get(`/QuanLyNguoiDung/LayDanhSachNguoiDung?MaNhom=${GROUP_ID}`);
   },
   
   // 2. Tìm kiếm
   searchUser: (tuKhoa: string) => {
-    return api.get(`/QuanLyNguoiDung/TimKiemNguoiDung?MaNhom=GP01&tuKhoa=${tuKhoa}`);
+    return api.get(`/QuanLyNguoiDung/TimKiemNguoiDung?MaNhom=${GROUP_ID}&tuKhoa=${tuKhoa}`);
   },
 
   // 3. 👇 BỔ SUNG HÀM NÀY ĐỂ FIX LỖI "deleteUser does not exist"

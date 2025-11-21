@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { userService } from "../services/user.service";
+import { PATH } from "@/constants/constants";
 
 export const AddUser = () => {
   const { id } = useParams(); // Lấy tài khoản từ URL (nếu có)
@@ -19,18 +21,27 @@ export const AddUser = () => {
 
   // Nếu là Edit Mode -> Load dữ liệu giả
   useEffect(() => {
-    if (isEditMode) {
-      // Giả lập API trả về thông tin user
-      const mockUser = {
-        taiKhoan: id, // Lấy luôn từ URL
-        matKhau: "123456",
-        hoTen: "Nguyễn Văn A",
-        email: "nguyenvana@gmail.com",
-        soDt: "0909123456",
-        maLoaiNguoiDung: "QuanTri",
+    if (isEditMode && id) {
+      const fetchUserDetail = async () => {
+        try {
+          // API này trả về 1 danh sách, ta lấy phần tử đầu tiên khớp tài khoản
+          const res = await userService.getUserDetail(id);
+          if (res.data.content && res.data.content.length > 0) {
+            const user = res.data.content[0]; // Lấy người đầu tiên tìm thấy
+            setFormData({
+              taiKhoan: user.taiKhoan,
+              matKhau: user.matKhau, // API thường không trả mật khẩu, có thể để trống
+              email: user.email,
+              soDt: user.soDt,
+              hoTen: user.hoTen,
+              maLoaiNguoiDung: user.maLoaiNguoiDung,
+            });
+          }
+        } catch (error) {
+          console.error("Lỗi lấy user:", error);
+        }
       };
-      // @ts-ignore
-      setFormData(mockUser);
+      fetchUserDetail();
     }
   }, [isEditMode, id]);
 
@@ -42,16 +53,20 @@ export const AddUser = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isEditMode) {
-      console.log("Cập nhật user:", formData);
-      alert("Cập nhật thành công!");
-    } else {
-      console.log("Thêm mới user:", formData);
-      alert("Thêm mới thành công!");
+    try {
+      if (isEditMode) {
+        await userService.updateUser(formData);
+        alert("Cập nhật thành công!");
+      } else {
+        await userService.addUser(formData);
+        alert("Thêm mới thành công!");
+      }
+      navigate(PATH.ADMIN_USERS);
+    } catch (err) {
+      alert("Có lỗi xảy ra!");
     }
-    // navigate("/admin/users"); // Có thể uncomment để quay lại trang list
   };
 
   return (

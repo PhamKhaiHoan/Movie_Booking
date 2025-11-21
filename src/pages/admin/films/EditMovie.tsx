@@ -1,54 +1,99 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"; // 👈 Import cái này để lấy ID trên URL
+import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { movieService } from "@/pages/admin/services/movie.service";
+import { PATH } from "@/constants/path";
+import dayjs from "dayjs";
 
 export const EditMovie = () => {
-  const { id } = useParams(); // Lấy mã phim từ URL
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [imgPreview, setImgPreview] = useState<string>("");
+  const [file, setFile] = useState<File | null>(null);
 
-  // State giả lập dữ liệu form (Sau này dùng React Hook Form sẽ gọn hơn)
   const [formData, setFormData] = useState({
     tenPhim: "",
     moTa: "",
     trailer: "",
     ngayKhoiChieu: "",
     danhGia: 0,
-    dangChieu: false, // Thêm cái này
-    sapChieu: false, // Thêm cái này
-    hot: false, // Thêm cái này
+    dangChieu: false,
+    sapChieu: false,
+    hot: false,
   });
 
-  // Giả bộ gọi API lấy thông tin phim khi vào trang
+  // Gọi API lấy chi tiết phim
   useEffect(() => {
-    const mockDataTuAPI = {
-      tenPhim: "Mai (Đã chỉnh sửa)",
-      moTa: "Phim của Trấn Thành...",
-      trailer: "https://youtube.com/...",
-      ngayKhoiChieu: "2024-02-10",
-      danhGia: 9,
-      hinhAnh: "https://movienew.cybersoft.edu.vn/hinhanh/mai_gp01.jpg",
-      dangChieu: true, // Giả sử phim này đang chiếu
-      sapChieu: false,
-      hot: true, // Và nó đang Hot
-    };
+    if (!id) return;
+    const fetchDetail = async () => {
+      try {
+        const res = await movieService.getMovieDetail(id);
+        const movie = res.data.content;
 
-    setFormData(mockDataTuAPI);
-    setImgPreview(mockDataTuAPI.hinhAnh);
+        setFormData({
+          tenPhim: movie.tenPhim,
+          moTa: movie.moTa,
+          trailer: movie.trailer,
+          // Format lại ngày cho đúng chuẩn input date (yyyy-MM-dd)
+          ngayKhoiChieu: dayjs(movie.ngayKhoiChieu).format("YYYY-MM-DD"),
+          danhGia: movie.danhGia,
+          dangChieu: movie.dangChieu,
+          sapChieu: movie.sapChieu,
+          hot: movie.hot,
+        });
+        setImgPreview(movie.hinhAnh);
+      } catch (error) {
+        console.error("Lỗi lấy chi tiết phim:", error);
+      }
+    };
+    fetchDetail();
   }, [id]);
 
-  // ... (Giữ nguyên hàm handleFileChange)
+  const handleChange = (e: any) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (
-      file &&
-      (file.type === "image/jpeg" ||
-        file.type === "image/png" ||
-        file.type === "image/gif")
-    ) {
-      const url = URL.createObjectURL(file);
-      setImgPreview(url);
-    } else {
-      alert("Vui lòng chọn file ảnh (jpg, png, gif)!");
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setImgPreview(URL.createObjectURL(selectedFile));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const data = new FormData();
+    data.append("maPhim", id || "");
+    data.append("tenPhim", formData.tenPhim);
+    data.append("trailer", formData.trailer);
+    data.append("moTa", formData.moTa);
+    data.append("maNhom", "GP01");
+    // Format ngày gửi lên API phải là dd/mm/yyyy
+    data.append(
+      "ngayKhoiChieu",
+      dayjs(formData.ngayKhoiChieu).format("DD/MM/YYYY")
+    );
+    data.append("danhGia", formData.danhGia.toString());
+    data.append("dangChieu", formData.dangChieu.toString());
+    data.append("sapChieu", formData.sapChieu.toString());
+    data.append("hot", formData.hot.toString());
+
+    if (file) {
+      data.append("File", file);
+    }
+
+    try {
+      await movieService.updateMovie(data);
+      alert("Cập nhật phim thành công!");
+      navigate(PATH.ADMIN_FILMS);
+    } catch (error) {
+      console.error("Lỗi update:", error);
+      alert("Cập nhật thất bại!");
     }
   };
 
@@ -58,111 +103,126 @@ export const EditMovie = () => {
         Cập nhật Phim: <span className="text-blue-400">{id}</span>
       </h1>
 
-      <form className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* CỘT TRÁI */}
+          {/* --- CỘT TRÁI --- */}
           <div className="space-y-6">
+            {/* Tên phim */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Tên phim
               </label>
               <input
                 type="text"
-                defaultValue={formData.tenPhim} // 👈 Dùng defaultValue để hiện data cũ
+                name="tenPhim" // 👈 1. Thêm name
+                value={formData.tenPhim} // 👈 2. Đổi defaultValue thành value
+                onChange={handleChange} // 👈 3. Thêm onChange
                 className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
               />
             </div>
 
+            {/* Trailer */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Trailer
               </label>
               <input
                 type="text"
-                defaultValue={formData.trailer}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none"
+                name="trailer"
+                value={formData.trailer}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
               />
             </div>
 
+            {/* Mô tả */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Mô tả
               </label>
               <textarea
                 rows={5}
-                defaultValue={formData.moTa}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none"
+                name="moTa"
+                value={formData.moTa}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
               />
             </div>
           </div>
 
-          {/* CỘT PHẢI */}
+          {/* --- CỘT PHẢI --- */}
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
+              {/* Ngày khởi chiếu */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Ngày khởi chiếu
                 </label>
                 <input
                   type="date"
-                  defaultValue={formData.ngayKhoiChieu}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none"
+                  name="ngayKhoiChieu"
+                  value={formData.ngayKhoiChieu}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
                 />
               </div>
+
+              {/* Đánh giá */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Đánh giá
                 </label>
                 <input
                   type="number"
-                  defaultValue={formData.danhGia}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none"
+                  name="danhGia"
+                  value={formData.danhGia}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
                 />
               </div>
             </div>
 
-            {/* ... (Phần Switch giữ nguyên) ... */}
-            {/* --- CHÈN ĐOẠN NÀY VÀO GIỮA "NGÀY/ĐÁNH GIÁ" VÀ "UPLOAD ẢNH" --- */}
+            {/* --- SWITCHES (Cập nhật lại cho gọn code) --- */}
             <div className="flex items-center gap-8 py-4">
-              {/* Switch Đang chiếu */}
+              {/* Đang chiếu */}
               <label className="flex items-center gap-2 cursor-pointer select-none">
                 <input
                   type="checkbox"
+                  name="dangChieu" // Thêm name
                   className="w-5 h-5 accent-blue-600 cursor-pointer"
-                  checked={formData.dangChieu} // Binding dữ liệu (True thì tick)
-                  onChange={(e) =>
-                    setFormData({ ...formData, dangChieu: e.target.checked })
-                  } // Cập nhật state khi bấm
+                  checked={formData.dangChieu}
+                  onChange={handleChange} // Dùng chung handleChange luôn
                 />
                 <span className="text-sm font-medium text-gray-700">
                   Đang chiếu
                 </span>
               </label>
 
-              {/* Switch Sắp chiếu */}
+              {/* Sắp chiếu */}
               <label className="flex items-center gap-2 cursor-pointer select-none">
                 <input
                   type="checkbox"
+                  name="sapChieu"
                   className="w-5 h-5 accent-blue-600 cursor-pointer"
                   checked={formData.sapChieu}
-                  onChange={(e) =>
-                    setFormData({ ...formData, sapChieu: e.target.checked })
-                  }
+                  onChange={handleChange}
                 />
                 <span className="text-sm font-medium text-gray-700">
                   Sắp chiếu
                 </span>
               </label>
 
-              {/* Switch Hot */}
+              {/* Hot */}
               <label className="flex items-center gap-2 cursor-pointer select-none">
                 <input
                   type="checkbox"
+                  name="hot"
                   className="w-5 h-5 accent-red-500 cursor-pointer"
                   checked={formData.hot}
-                  onChange={(e) =>
-                    setFormData({ ...formData, hot: e.target.checked })
-                  }
+                  onChange={handleChange}
                 />
                 <span className="text-sm font-medium text-red-600">
                   Phim Hot 🔥
@@ -170,7 +230,7 @@ export const EditMovie = () => {
               </label>
             </div>
 
-            {/* Upload Ảnh */}
+            {/* Upload Ảnh (Giữ nguyên) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Hình ảnh

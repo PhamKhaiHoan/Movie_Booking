@@ -15,6 +15,7 @@ interface Movie {
 export const MovieList = () => {
   const navigate = useNavigate();
   
+  
   // 1. State lưu TOÀN BỘ danh sách phim từ API
   const [movieList, setMovieList] = useState<Movie[]>([]);
   const [keyword, setKeyword] = useState("");

@@ -2,13 +2,14 @@
 import { Button } from "@/components/ui/button";
 import { PATH } from "@/constants/path";
 import { Calendar, Edit, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export const MovieList = () => {
   const navigate = useNavigate();
 
   // Mock Data (Dữ liệu giả để test UI)
-  const dataPhim = [
+  const [dataPhim, setDataPhim] = useState([
     {
       maPhim: 1314,
       tenPhim: "Mai",
@@ -29,7 +30,18 @@ export const MovieList = () => {
         "https://movienew.cybersoft.edu.vn/hinhanh/kung-fu-panda-4_gp01.jpg",
       moTa: "Gấu béo trở lại lợi hại hơn xưa...",
     },
-  ];
+  ]);
+
+  const handleDelete = (maPhim: number) => {
+    // Lọc ra những phim KHÔNG trùng mã (nghĩa là giữ lại phim khác, bỏ phim này)
+    const newData = dataPhim.filter((phim) => phim.maPhim !== maPhim);
+
+    // Cập nhật lại State
+    setDataPhim(newData);
+
+    // Alert cho ngầu (sau này thay bằng Toast message)
+    alert("Xóa thành công!");
+  };
 
   return (
     <div>
@@ -97,6 +109,9 @@ export const MovieList = () => {
                       variant="outline"
                       size="icon"
                       className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      onClick={() =>
+                        navigate(`/admin/films/edit/${phim.maPhim}`)
+                      }
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -106,6 +121,7 @@ export const MovieList = () => {
                       variant="outline"
                       size="icon"
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleDelete(phim.maPhim)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -115,6 +131,7 @@ export const MovieList = () => {
                       variant="outline"
                       size="icon"
                       className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                      onClick={() => navigate(`/admin/showtimes/${phim.maPhim}`)}
                     >
                       <Calendar className="h-4 w-4" />
                     </Button>
